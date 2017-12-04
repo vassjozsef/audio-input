@@ -1,0 +1,14 @@
+{
+  "name": "audio-input-selection",
+  "version": "0.0.1",
+  "description": "Audio Input Device Selelction",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vassjozsef/audio-inout"
+  },
+  "author": "Jozsef Vass",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.15.2"
+  }
+}
