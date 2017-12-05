@@ -7,8 +7,15 @@
 
   </head>
 
-  <body>
+  <body onload="init()">
     <script type="text/javascript">
+
+      function init() {
+        navigator.mediaDevices.ondevicechange = function(event) {
+          status('Device change detected\n');
+          enumerateDevices();
+        }
+      }
 
       function clearStatus() {
         textarea = document.getElementById("statusArea");
