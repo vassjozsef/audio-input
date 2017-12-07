@@ -1,73 +1,24 @@
+<!doctype html>
 <html>
-  <title>Audio Device Selection</title>
+  <head>
+    <title>Audio Device Selection</title>
 
     <style>
       textarea{resize:none}
     </style>
 
+    <script src="volume-meter.js"></script>
+    <script src="main.js"></script>
   </head>
 
-  <body onload="init()">
-    <script type="text/javascript">
-
-      function init() {
-        navigator.mediaDevices.ondevicechange = function(event) {
-          status('Device change detected\n');
-          enumerateDevices();
-        }
-      }
-
-      function clearStatus() {
-        textarea = document.getElementById("statusArea");
-        textarea.innerHTML = "";
-      }
-
-      function status(msg) {
-         textarea = document.getElementById("statusArea");
-         textarea.innerHTML += msg;
-         console.log(msg);
-      }
-
-      function enumerateDevices() {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
-          status('enumerateDevices() not supported.');
-        }
-        navigator.mediaDevices.enumerateDevices().then(function(devices) {
-          devices.forEach(function(device) {
-            if (device.kind == 'audioinput') {
-              status('Label: ' + device.label + ', id = ' + device.deviceId + '\n');
-            }
-           });
-        }).catch(function(err) {
-         status(err.name + ': ' + err.message);
-        });
-      }
-
-      function getAudio() {
-        navigator.getUserMedia({audio: true},
-        function(localStream) {
-          status('getUserMedia success\n');
-        },
-        function(error) {
-          if (error.name == 'PermissionDeniedError') {
-          status('getUserMedia permission error: ' + error.message + '\n');
-          } else {
-            status('getUserMedia error: ' + error + '\n');
-          }
-        });
-      }
-    </script>
-
-  </body>
-
+  <body>
     <h3>Audio Device Sample</h3>
 
     <button onclick="getAudio()">Get Audio Permissions</button>
     <button onclick="enumerateDevices()">Enumerate Devices</button>
 
+    <p>Volume: <label id="volume">
+
     <p><button onclick="clearStatus()">Clear</button></p>
     <p><textarea rows="30" cols="100" id="statusArea" readonly></textarea></p>
-
-
-
 </html>
