@@ -1,4 +1,4 @@
-import Vad from './volume-meter.js';
+import Vad from './volume-meter-fft.js';
 
 var audiocContext = null;
 var vad = null;
@@ -56,7 +56,7 @@ window.getAudio = function() {
       let volume = document.getElementById('volume');
       volume.innerHTML = currentVolume;
       canvasContext.clearRect(0, 0, width, height);
-      canvasContext.fillRect(0, 0, vad.currentVolume * width * 1.4, height);
+      canvasContext.fillRect(0, 0, vad.currentVolume * width, height);
       canvasContext.stroke();
     };
   },
