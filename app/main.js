@@ -3,21 +3,31 @@ import Vad from './volume-meter.js';
 var audiocContext = null;
 var vad = null;
 var volumeMeter = null;
+var canvasContext = null;
+var width = 0;
+var height = 0;
 
 window.onload = function() {
   navigator.mediaDevices.ondevicechange = function(event) {
     status('Device change detected\n');
     enumerateDevices();
   }
+  let meter = document.getElementById('meter');
+  width = meter.scrollWidth;
+  height = meter.scrollHeight;
+  canvasContext = meter.getContext('2d');
+  canvasContext.fillStyle = "green";
+  canvasContext.rect(0, 0, width, height);
+  canvasContext.stroke();
 }
 
 window.clearStatus = function() {
-  let textarea = document.getElementById("statusArea");
-  textarea.innerHTML = "";
+  let textarea = document.getElementById('statusArea');
+  textarea.innerHTML = ''
 }
 
 function status(msg) {
-   let textarea = document.getElementById("statusArea");
+   let textarea = document.getElementById('statusArea');
    textarea.innerHTML += msg;
    console.log(msg);
 }
@@ -45,6 +55,9 @@ window.getAudio = function() {
     vad.onProcess = (currentVolume) => {
       let volume = document.getElementById('volume');
       volume.innerHTML = currentVolume;
+      canvasContext.clearRect(0, 0, width, height);
+      canvasContext.fillRect(0, 0, vad.currentVolume * width * 1.4, height);
+      canvasContext.stroke();
     };
   },
   function(error) {
