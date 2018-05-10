@@ -1,5 +1,7 @@
+import Vad from './volume-meter.js';
+
 var audiocContext = null;
-var mediaStreamSource = null;
+var vad = null;
 var volumeMeter = null;
 
 window.onload = function() {
@@ -7,21 +9,20 @@ window.onload = function() {
     status('Device change detected\n');
     enumerateDevices();
   }
-  audioContext = new AudioContext();
 }
 
-function clearStatus() {
-  textarea = document.getElementById("statusArea");
+window.clearStatus = function() {
+  let textarea = document.getElementById("statusArea");
   textarea.innerHTML = "";
 }
 
 function status(msg) {
-   textarea = document.getElementById("statusArea");
+   let textarea = document.getElementById("statusArea");
    textarea.innerHTML += msg;
    console.log(msg);
 }
 
-function enumerateDevices() {
+window.enumerateDevices = function() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
     status('enumerateDevices() not supported.');
   }
@@ -36,18 +37,15 @@ function enumerateDevices() {
   });
 }
 
-function getAudio() {
+window.getAudio = function() {
   navigator.getUserMedia({audio: true},
   function(localStream) {
     status('getUserMedia success\n');
-    mediaStreamSource = audioContext.createMediaStreamSource(localStream);
-    volumeMeter = createVolumeMeter(audioContext);
-    mediaStreamSource.connect(volumeMeter);
-
-    setInterval(function() {
-      document.getElementById('volume');
-      volume.innerHTML = volumeMeter.volume;
-    }, 1000);
+    vad = new Vad(localStream);
+    vad.onProcess = (currentVolume) => {
+      let volume = document.getElementById('volume');
+      volume.innerHTML = currentVolume;
+    };
   },
   function(error) {
     if (error.name == 'PermissionDeniedError') {
