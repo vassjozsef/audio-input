@@ -6,6 +6,7 @@ var volumeMeter = null;
 var canvasContext = null;
 var width = 0;
 var height = 0;
+var stream = null;
 
 window.onload = function() {
   enumerateDevices();
@@ -16,7 +17,7 @@ window.onload = function() {
     }
   }
 
-  let meter = document.getElementById('meter');
+  const meter = document.getElementById('meter');
   width = meter.scrollWidth;
   height = meter.scrollHeight;
   canvasContext = meter.getContext('2d');
@@ -26,12 +27,12 @@ window.onload = function() {
 }
 
 window.clearStatus = function() {
-  let textarea = document.getElementById('statusArea');
+  const textarea = document.getElementById('statusArea');
   textarea.innerHTML = ''
 }
 
 function status(msg) {
-   let textarea = document.getElementById('statusArea');
+   const textarea = document.getElementById('statusArea');
    textarea.innerHTML += msg;
    console.log(msg);
 }
@@ -42,37 +43,53 @@ function enumerateDevices() {
     return;
   }
   navigator.mediaDevices.enumerateDevices().then(devices => {
-   let audioInputDevies = document.getElementById("audioInputDevices");
+   const audioInputDevies = document.getElementById("audioInputDevices");
+   const index = audioInputDevies.selectedIndex;
    for (let i = audioInputDevies.options.length - 1 ; i >= 0 ; i--) {
       audioInputDevies.remove(i);
     }
     devices.forEach(device => {
      if (device.kind === "audioinput") {
-        let option = document.createElement('option');
+        const option = document.createElement('option');
         option.text = device.label || device.deviceId;
         option.value = device.deviceId;
         audioInputDevices.add(option);
       }
     });
+    audioInputDevies.selectedIndex = Math.max(0, Math.min(index, audioInputDevies.options.length - 1));
   }).catch(error => {
     status(`Error getting devices: ${error}\n`);
   });
 }
 
 window.start = function() {
-  let audioInputDevies = document.getElementById("audioInputDevices");
-  let selected = audioInputDevies.value;
+
+  // this is required for Firefox device selection to work!
+  if (stream) {
+    stream.getTracks().forEach(function(track) {
+      track.stop();
+    });
+  }
+
+  const audioInputDevies = document.getElementById("audioInputDevices");
+  const selected = audioInputDevies.value;
 
   status(`Using device: ${selected}\n`);
 
-  let constraints = {audio: {deviceId: selected}};
+  const constraints = {audio: {deviceId: selected}};
 
   navigator.mediaDevices.getUserMedia(constraints).then(localStream => {
     status('getUserMedia success\n');
     enumerateDevices();
+
+    const audioElement = document.getElementById('audioElement');
+    audioElement.srcObject = localStream;
+
+    stream = localStream;
+    
     vad = new Vad(localStream);
     vad.onProcess = (currentVolume) => {
-      let volume = document.getElementById('volume');
+      const volume = document.getElementById('volume');
       volume.innerHTML = currentVolume;
       canvasContext.clearRect(0, 0, width, height);
       canvasContext.fillRect(0, 0, vad.currentVolume * width, height);
