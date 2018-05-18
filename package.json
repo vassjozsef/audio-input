@@ -1,10 +1,10 @@
 {
   "name": "audio-input-selection",
   "version": "0.0.1",
-  "description": "Audio Input Device Selelction",
+  "description": "Audio Input Device Selection",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vassjozsef/audio-inout"
+    "url": "https://github.com/vassjozsef/audio-input"
   },
   "author": "Jozsef Vass",
   "scripts": {
