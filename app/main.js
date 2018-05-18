@@ -66,9 +66,7 @@ window.start = function() {
 
   // this is required for Firefox device selection to work!
   if (stream) {
-    stream.getTracks().forEach(function(track) {
-      track.stop();
-    });
+    stream.getTracks().forEach(track => track.stop());
   }
 
   const audioInputDevies = document.getElementById("audioInputDevices");
