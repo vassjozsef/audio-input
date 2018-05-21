@@ -90,7 +90,7 @@ window.start = function() {
       const volume = document.getElementById('volume');
       volume.innerHTML = currentVolume;
       canvasContext.clearRect(0, 0, width, height);
-      canvasContext.fillRect(0, 0, vad.currentVolume * width, height);
+      canvasContext.fillRect(0, 0, currentVolume * width, height);
       canvasContext.stroke();
     };
   }).catch(error => {

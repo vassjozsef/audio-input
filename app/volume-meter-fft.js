@@ -22,6 +22,14 @@ export default class Vad {
     source.connect(analyser);
 
     const processor = context.createScriptProcessor(1024, 0, 1);
+
+    setInterval(() => {
+      this.update();
+      if (this.currentVolume == -Infinity && this.onProcess) {
+        this.onProcess(0.5);
+      }
+    }, 1000);
+
     processor.onaudioprocess = () => {
       this.update();
       if (this.onProcess) {
