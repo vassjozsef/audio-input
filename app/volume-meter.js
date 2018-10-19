@@ -34,6 +34,9 @@ export default class Vad {
   }
 
   stop() {
+    if (this.onProcess) {
+      this.onProcess(0);
+    }
     this.source.disconnetc();
     this.processor.disconnect();
     this.context.close();

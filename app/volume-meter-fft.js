@@ -50,6 +50,9 @@ export default class Vad {
   }
 
   stop() {
+    if (this.onProcess) {
+      this.onProcess(0);
+    }
     this.source.disconnect();
     this.processor.disconnect();
     this.context.close();

@@ -34,7 +34,7 @@ window.clearStatus = function() {
 function status(msg) {
    const textarea = document.getElementById('statusArea');
    textarea.innerHTML += msg;
-   console.log(msg);
+   console.info(msg);
 }
 
 function enumerateDevices() {
@@ -43,20 +43,28 @@ function enumerateDevices() {
     return;
   }
   navigator.mediaDevices.enumerateDevices().then(devices => {
-   const audioInputDevies = document.getElementById('audioInputDevices');
-   const index = audioInputDevies.selectedIndex;
-   for (let i = audioInputDevies.options.length - 1 ; i >= 0 ; i--) {
-      audioInputDevies.remove(i);
-    }
+    const audioInputDevies = document.getElementById('audioInputDevices');
+    const inputIndex = audioInputDevies.selectedIndex;
+    audioInputDevies.innerHTML = '';
+
+    const audioOutputDevices = document.getElementById('audioOutputDevices');
+    const outputIndex = audioOutputDevices.selectedIndex;  
+    audioOutputDevices.innerHTML = '';
     devices.forEach(device => {
-     if (device.kind === 'audioinput') {
+      if (device.kind === 'audioinput') {
         const option = document.createElement('option');
         option.text = device.label || device.deviceId;
         option.value = device.deviceId;
         audioInputDevices.add(option);
+      } else if (device.kind === 'audiooutput') {
+        const option = document.createElement('option');
+        option.text = device.label || device.deviceId;
+        option.value = device.deviceId;
+        audioOutputDevices.add(option);
       }
     });
-    audioInputDevies.selectedIndex = Math.max(0, Math.min(index, audioInputDevies.options.length - 1));
+    audioInputDevies.selectedIndex = Math.max(0, Math.min(inputIndex, audioInputDevies.options.length - 1));
+    audioOutputDevices.selectedIndex = Math.max(0, Math.min(outputIndex, audioOutputDevices.options.length - 1));
   }).catch(error => {
     status(`Error getting devices: ${error.toString()}\n`);
   });
@@ -65,22 +73,33 @@ function enumerateDevices() {
 window.start = function() {
 
   // this is required for Firefox device selection to work!
-  if (stream) {
-    stream.getTracks().forEach(track => track.stop());
+  stop();
+
+  const audioOutputDevies = document.getElementById('audioOutputDevices');
+  const selectedOutput = audioOutputDevies.value;
+
+  status(`Using output device ${selectedOutput}\n`);
+
+  const audioElement = document.getElementById('audioElement');
+  if (typeof audioElement.sinkId !== 'undefined') {
+    audioElement.setSinkId(selectedOutput).catch(error =>
+      status(`Failed to set output device: ${error.toString()}\n`)
+    );
+  } else {
+    status('Cannot set audio output device\n');
   }
 
   const audioInputDevies = document.getElementById('audioInputDevices');
-  const selected = audioInputDevies.value;
+  const selectedInput = audioInputDevies.value;
 
-  status(`Using device: ${selected}\n`);
+  status(`Using input device: ${selectedInput}\n`);
 
-  const constraints = {audio: {deviceId: selected}};
+  const constraints = {audio: {deviceId: selectedInput}};
 
   navigator.mediaDevices.getUserMedia(constraints).then(localStream => {
     status('getUserMedia success\n');
     enumerateDevices();
 
-    const audioElement = document.getElementById('audioElement');
     audioElement.srcObject = localStream;
 
     stream = localStream;
@@ -96,4 +115,18 @@ window.start = function() {
   }).catch(error => {
     status(`getUserMedia error: ${error.toString()}\n`);
   });
+}
+
+window.stop = function() {
+  if (stream) {
+    stream.getTracks().forEach(track => {
+      track.stop();
+    });
+    stream = null;
+  }
+
+  if (vad) {
+    vad.stop();
+    vad = null;
+  }
 }

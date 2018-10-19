@@ -13,8 +13,10 @@
   <body>
     <h3>Audio Device Selection</h3>
 
-    <select id="audioInputDevices"></select> (please grant permission to see device names)
+    <select id="audioInputDevices"></select> <select id="audioOutputDevices"></select> 
+    (please grant permission to see device names)
     <p><button onclick="start()">Start Capture</button>
+    <button onclick="stop()">Stop Capture</button>
 
     <p>Volume: <label id="volume">
     <p><canvas id="meter" width="620" height="20"></canvas>
