@@ -98,6 +98,14 @@ window.start = function() {
 
   navigator.mediaDevices.getUserMedia(constraints).then(localStream => {
     status('getUserMedia success\n');
+    const audioTracks = localStream.getAudioTracks();
+    if (audioTracks.length > 0) {
+      const track = audioTracks[0];
+      console.info(track.getSettings());
+      console.info(track.getCapabilities());
+    } else {
+      status('No audio tracks.');
+    }
     enumerateDevices();
 
     audioElement.srcObject = localStream;
